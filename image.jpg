@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<style>
+html,body{margin:0;height:100%;background:#000;overflow:hidden}
+.scene{position:relative;height:100vh;overflow:hidden}
+.layer{position:absolute;inset:-5%;background:url(image.jpg) center/cover}
+.bg{animation:zoom 30s ease-in-out infinite alternate}
+.grass{
+  -webkit-mask-image:linear-gradient(transparent 62%,#000 75%);
+  mask-image:linear-gradient(transparent 62%,#000 75%);
+  transform-origin:50% 100%;animation:sway 4s ease-in-out infinite alternate}
+.fog{position:absolute;top:0;left:0;width:200%;height:55%;filter:blur(25px);
+  background:
+   radial-gradient(ellipse at 20% 50%,rgba(70,70,85,.4),transparent 45%),
+   radial-gradient(ellipse at 55% 40%,rgba(40,40,55,.5),transparent 45%),
+   radial-gradient(ellipse at 85% 60%,rgba(80,80,95,.35),transparent 45%);
+  animation:fog 40s ease-in-out infinite alternate}
+.flash{position:absolute;top:0;left:0;width:100%;height:60%;opacity:0;
+  background:radial-gradient(ellipse at 60% 30%,#cfe0ff,transparent 70%);
+  mix-blend-mode:screen;animation:flash 9s infinite}
+canvas{position:absolute;inset:0;width:100%;height:100%}
+@keyframes zoom{to{transform:scale(1.08)}}
+@keyframes sway{from{transform:skewX(-1.2deg)}to{transform:skewX(1.2deg)}}
+@keyframes fog{to{transform:translateX(-50%)}}
+@keyframes flash{0%,90%,100%{opacity:0}91%{opacity:.5}92%{opacity:.1}93%{opacity:.7}96%{opacity:0}}
+</style></head>
+<body>
+<div class="scene">
+  <div class="layer bg"></div>
+  <div class="fog"></div>
+  <div class="layer grass"></div>
+  <div class="flash"></div>
+  <canvas id="c"></canvas>
+</div>
+<script>
+const c=document.getElementById("c"),x=c.getContext("2d");
+function size(){c.width=innerWidth;c.height=innerHeight}
+size();addEventListener("resize",size);
+const P=Array.from({length:45},()=>({
+  x:Math.random()*innerWidth,y:Math.random()*innerHeight,
+  r:Math.random()*1.8+.6,vx:Math.random()*.6-.1,vy:-Math.random()*.4-.1,
+  t:Math.random()*6}));
+function loop(){
+  x.clearRect(0,0,c.width,c.height);
+  for(const p of P){
+    p.t+=.02;p.x+=p.vx+Math.sin(p.t)*.3;p.y+=p.vy;
+    if(p.y<-5||p.x>c.width+5){p.y=c.height+5;p.x=Math.random()*c.width}
+    x.beginPath();x.arc(p.x,p.y,p.r,0,7);
+    x.fillStyle="rgba(255,240,180,"+(.4+Math.sin(p.t)*.3)+")";
+    x.fill();
+  }
+  requestAnimationFrame(loop);
+}
+loop();
+</script>
+</body></html>
